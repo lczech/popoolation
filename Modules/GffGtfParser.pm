@@ -143,9 +143,10 @@ sub _load{
 		#ignore comments;
 		next if ($line=~m/^#/);
 		
+		my @tmp = split "\t", $line;
 		#check a number of fields in the line;
 		#die if the number is lower than 8 -- incorrect lines e.g. DNA sequence of mitochondrial genome in r5.32
-		if (scalar(split "\t", $line)<8){die "incorrect line in gff file $IN_FILE";}
+		if (scalar(@tmp)<8){die "incorrect line in gff file $IN_FILE";}
 		
 		#split fields into different variables -- distinguish two possibilities (GFF or GTF input file) 
 		my ($chr, $source, $feat, $start, $end, $score, $strand, $offset) = split "\t", $line;
