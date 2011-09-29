@@ -235,6 +235,11 @@ sub _calculate_characteristics_GFF{
 #	my $rSum_theta={};
 #	my $rSum_D={};
 			
+	my $ptrPiSNPs = {};
+	my $ptrThetaSNPs = {};
+	my $ptrDSNPs = {};
+	
+			
 	open PILEUPfile, "<", $PILEUP_FILE or die "pileup file problem";
 	
 	while (my $line = <PILEUPfile>){
@@ -262,9 +267,6 @@ sub _calculate_characteristics_GFF{
 		my $isPureSNP = $parsedLine->{ispuresnp};
 		next unless $isPureSNP;
 		
-		my $ptrPiSNPs = {};
-		my $ptrThetaSNPs = {};
-		my $ptrDSNPs = {};
 		
 		if ($MEASURE eq "pi"){
 			push @{$ptrPiSNPs->{$feature}}, $parsedLine;
@@ -305,6 +307,7 @@ sub _calculate_characteristics_GFF{
 	my $ptrOut={};
 	
 	foreach my $code (keys %$ptrInverseFeatHash){
+		
 		my $feature = $ptrInverseFeatHash->{$code};
 
 		if (defined($ptrLength->{$feature})){
@@ -314,7 +317,7 @@ sub _calculate_characteristics_GFF{
 		}
 
 		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}!=0)){
-			$ptrOut->{$feautre}{coveredLength} = $ptrCoveredLength->{$feature};
+			$ptrOut->{$feature}{coveredLength} = $ptrCoveredLength->{$feature};
 			
 			if ($MEASURE eq "pi"){
 				$ptrOut->{$feature}{pi} = $ptrPi->{$feature};	
@@ -354,7 +357,7 @@ sub print_variance_for_feature{
 
 	if ($MEASURE eq "pi"){
 
-		foreach my $code (keys %$rInverseFeatHash){
+		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
 			print "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
@@ -365,7 +368,7 @@ sub print_variance_for_feature{
 
 	}elsif($MEASURE eq "theta"){
 		
-		foreach my $code (keys %$rInverseFeatHash){
+		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
 			print "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
@@ -375,7 +378,7 @@ sub print_variance_for_feature{
 		
 	}elsif($MEASURE eq "d"){
 
-		foreach my $code (keys %$rInverseFeatHash){
+		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
 			print "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
@@ -385,7 +388,7 @@ sub print_variance_for_feature{
 
 	}else{
 
-		foreach my $code (keys %$rInverseFeatHash){
+		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
 			print "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
