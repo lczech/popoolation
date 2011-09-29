@@ -180,14 +180,15 @@ sub _load{
 			score=>$score,
 			strand=>$strand,
 			offset=>$offset
-		}
+		}; 
+		
 		push @$ptrGff, $ptrHash;
 		_update_chromosome_arms_list($ptrChromosomeArms, $chr, $feat);		
 	}
 		
 	#check chromosome arms	
 	my $ptrChromosomeArmsMissing=[];
-	my $all_chromosome_arms_ok = _check_chromosome_arms($ignore_intergenic, $ptrChromosomeArms, $ptrChromosomeArmsMissing);
+	my $all_chromosome_arms_ok = _check_chromosome_arms($ptrChromosomeArms, $ptrChromosomeArmsMissing);
 	
 	if (!$all_chromosome_arms_ok){
 		die "Chromosome arms misssing for chromosomes @{$ptrChromosomeArmsMissing}. Add them and run again.";
@@ -207,7 +208,7 @@ sub _invert_feature_hash{
 			$ptrInverse->{$code} = $feature;
 		}
 	}
-	return $rInverse;
+	return $ptrInverse;
 }
 
 sub _calculate_characteristics_GFF{
@@ -254,33 +255,33 @@ sub _calculate_characteristics_GFF{
 		my $position = $parsedLine->{pos};
 		my $featuresString = $ptrAnnotation->{$chromosome}[$position]{feat};
 		
-		foreach my $code (keys %$rInverseFeatHash){
+		foreach my $code (keys %$ptrInverseFeatHash){
 			next unless defined($featuresString);
 			next unless $featuresString =~m/\Q$code\E/;
 		
 			my $feature = $ptrInverseFeatHash->{$code};
 			$ptrCoveredLength->{$feature}+=1;
+			
+			
+		# if this position is a pure SNP then store the SNP information into an array of SNPs for the particular measure that is going to be calculated
+			my $isPureSNP = $parsedLine->{ispuresnp};
+			next unless $isPureSNP;
+		
+		
+			if ($MEASURE eq "pi"){
+				push @{$ptrPiSNPs->{$feature}}, $parsedLine;
+			}elsif($MEASURE eq "theta"){
+				push @{$ptrThetaSNPs->{$feature}}, $parsedLine;
+			}elsif($MEASURE eq "d"){
+				push @{$ptrDSNPs->{$feature}}, $parsedLine;
+			}else{
+				
+				push @{$ptrPiSNPs->{$feature}}, $parsedLine;
+				push @{$ptrThetaSNPs->{$feature}}, $parsedLine;
+				push @{$ptrDSNPs->{$feature}}, $parsedLine;						
+			
+			}			
 		}
-	
-	
-	# if this position is a pure SNP then store the SNP information into an array of SNPs for the particular measure that is going to be calculated
-		my $isPureSNP = $parsedLine->{ispuresnp};
-		next unless $isPureSNP;
-		
-		
-		if ($MEASURE eq "pi"){
-			push @{$ptrPiSNPs->{$feature}}, $parsedLine;
-		}elsif($MEASURE eq "theta"){
-			push @{$ptrThetaSNPs->{$feature}}, $parsedLine;
-		}elsif($MEASURE eq "d"){
-			push @{$ptrDSNPs->{$feature}}, $parsedLine;
-		}else{
-			
-			push @{$ptrPiSNPs->{$feature}}, $parsedLine;
-			push @{$ptrThetaSNPs->{$feature}}, $parsedLine;
-			push @{$ptrDSNPs->{$feature}}, $parsedLine;						
-			
-		}		
 	}
 	close PILEUPfile;
 	
