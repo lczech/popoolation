@@ -55,6 +55,18 @@ GetOptions(
 	pod2usage(-msg=>"Could not find gff/gtf file",-verbose=>1) unless -e $GFF_FILE;
 	if ($POOL_SIZE == 0){pod2usage(-msg=>"Do not specified required option --pool-size  ",-verbose=>1)};
 	
+	my $outFileHandle;
+	if (defined($OUT_FILE)){
+		print "if\n";
+		open $outFileHandle, ">", $OUT_FILE or die "Could not write an output to $OUT_FILE";
+	}else{
+		print "else\n";
+		$outFileHandle = *STDOUT;
+	}
+
+	print $OUT_FILE, ", ", defined($OUT_FILE), "\n";
+	
+	
 	my $startTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 
 	my $ptrGenomeCharacteristics = get_characteristics_of_genome_gff_pileup(
@@ -62,12 +74,9 @@ GetOptions(
                               $QUAL_ENCODING, $MIN_COUNT, $MIN_COV, $MAX_COV, $MIN_QUAL,
 			                        $POOL_SIZE,$MEASURE, $UNCORRECTED);
 
-	my $outFileHandle;
-	if (defined($OUT_FILE)){
-		open $outFileHandle, ">", $OUT_FILE or die "Could not write an output to $OUT_FILE";
-	}else{
-		$outFileHandle = *STDOUT;
-	}
+	
+	
+	
 	if (defined($OUT_FILE)){
 		print_variance_for_feature($ptrGenomeCharacteristics, $outFileHandle, $0, $OUT_FILE."params");
 	}else{
