@@ -75,11 +75,11 @@ GetOptions(
 	}
 	my $endTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 	
-	print_input_params($MEASURE, $PILEUP_FILE, $GFF_FILE, $OUT_FILE, $QUAL_ENCODING, $MIN_COUNT, $MIN_QUAL, $POOL_SIZE, $MIN_COV, $MAX_COV, $UNCORRECTED, $TEST, $HELP, $startTime, $endTime);
+	print_input_params($MEASURE, $PILEUP_FILE, $GFF_FILE, $OUT_FILE, $QUAL_ENCODING, $MIN_COUNT, $MIN_QUAL, $POOL_SIZE, $MIN_COV, $MAX_COV, $UNCORRECTED, $startTime, $endTime);
 
 
 sub print_input_params{
-	my ($MEASURE, $PILEUP_FILE, $GFF_FILE, $OUT_FILE, $QUAL_ENCODING, $MIN_COUNT, $MIN_QUAL, $POOL_SIZE, $MIN_COV, $MAX_COV, $UNCORRECTED, $TEST, $HELP, $startTime, $endTime)=@_;	
+	my ($MEASURE, $PILEUP_FILE, $GFF_FILE, $OUT_FILE, $QUAL_ENCODING, $MIN_COUNT, $MIN_QUAL, $POOL_SIZE, $MIN_COV, $MAX_COV, $UNCORRECTED, $startTime, $endTime)=@_;	
 	
 	my $paramsFileHandle;
 	
@@ -95,7 +95,7 @@ sub print_input_params{
 	print $paramsFileHandle "calculated measure: ", $MEASURE, "\n";
 	print $paramsFileHandle "using input pileup file: ", $PILEUP_FILE, "\n";
 	print $paramsFileHandle "using input gff file: ", $GFF_FILE, "\n";
-	print $paramsFileHandle "output file: ", $OUTPUT, "\n";
+	print $paramsFileHandle "output file: ", $OUT_FILE, "\n";
 	print $paramsFileHandle "fastq-type: ", $QUAL_ENCODING, "\n";
 	print $paramsFileHandle "min-count: ", $MIN_COUNT, "\n";
 	print $paramsFileHandle "min-qual: ", $MIN_QUAL, "\n";
