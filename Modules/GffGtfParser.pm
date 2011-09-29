@@ -169,10 +169,10 @@ sub _load{
 	
 	#from $ptrGffData create a structure with info splitted into different variables
 	my $ptrGff=[];
-	foreach my $record (keys %$rGffData){
-		($chr,$source,$feat,$start,$end,$score,$strand,$offset) = split "\t", $record;
+	foreach my $record (keys %$ptrGffData){
+		my ($chr,$source,$feat,$start,$end,$score,$strand,$offset) = split "\t", $record;
 		
-		$ptrHash =	{
+		my $ptrHash =	{
 			chromosome=>$chr,
 			feat=>$feat,
 			start=>$start,
