@@ -24,7 +24,7 @@ my $test="";
 my $MEASURE="all";
 my $PILEUP_FILE;
 my $GFF_FILE;
-my $OUT_FILE = "";
+my $OUT_FILE;
 my $QUAL_ENCODING = "illumina";
 my $MIN_COUNT = 2;
 my $MIN_QUAL = 20;
