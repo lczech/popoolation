@@ -37,7 +37,7 @@ my $UNCORRECTED = 0;
 GetOptions(
 	"measure=s"=>\$MEASURE,
 	"input=s"=>\$PILEUP_FILE,
-	"gtf=s"=>\$GFF_FILE,
+	"gff=s"=>\$GFF_FILE,
 	"output=s"=>\$OUT_FILE,
 	"fastq-type=s"=>\$QUAL_ENCODING, 	
 	"min-count=i"=>\$MIN_COUNT, 
