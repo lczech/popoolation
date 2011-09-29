@@ -163,7 +163,33 @@ sub _is_in_featuresArray{
 	return $isInArray;
 }
 
-
+sub _compute_feature_lengths_GFF{
+	
+	my ($rAnnotation, $rInverseFeatHash)=@_;
+	
+	my $rFeatureLengths = {};
+	
+	foreach my $code (keys %$rInverseFeatHash){
+		my $feature = $rInverseFeatHash->{$code};
+	
+		$rFeatureLengths->{$feature}=0;
+	
+		foreach my $chromosome (keys %$rAnnotation){
+			my $length_chr=0;
+			my $end = @{$rAnnotation->{$chromosome}};
+			
+			for (my $i=0; $i<$end; $i++){
+				my $featuresString = $rAnnotation->{$chromosome}[$i]{feat};
+				next unless defined($featuresString);
+				next unless $rAnnotation->{$chromosome}[$i]{feat}=~m/\Q$code\E/;
+				$length_chr+=1;
+			}
+			$rFeatureLengths->{$feature}+=$length_chr;	
+		}
+			
+	}
+	return $rFeatureLengths;
+}
 
 sub _overwrite_and_add_feat_hash{
 	my ($ptrAnnotation, $ptrGff, $ptrFeatures)=@_;
