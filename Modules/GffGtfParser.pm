@@ -84,6 +84,119 @@ sub _load_GFF_file_with_chromosome_arms{
 	return $ptrAnnotation;
 }
 
+
+sub _overwrite_feature_whole_annotation{
+	my ($rAnnotation,$rGffList,$feature, $ptrFeatures)=@_;
+	
+	for (my $j=0; $j<scalar @$rGffList; $j++){
+		next unless ($feature eq $rGffList->[$j]{feat});
+				
+		my $feat;
+		if (defined($ptrFeatures)){
+			$feat=$ptrFeatures->{$feature};
+		}else{
+			$feat=$featHash{$feature};
+		}		
+		
+		#print Dumper($feat);
+		
+		my $start=$rGffList->[$j]{start};
+		my $end=$rGffList->[$j]{end};
+		my $chromosome=$rGffList->[$j]{chromosome};
+		my $strand = $rGffList->[$j]{strand}; 
+		
+		for (my $i=$start; $i<=$end; $i++){
+			$rAnnotation->{$chromosome}[$i]{feat}= $feat;
+			$rAnnotation->{$chromosome}[$i]{strand}= $strand;
+		}				
+	}
+}
+
+
+sub _add_features{
+	#add all features from $ptrFeaturesArray
+	#use coding in $ptrFeatures or default
+	my ($ptrAnnotation,$ptrGff, $ptrFeaturesArray,$ptrFeatures)=@_;
+	
+	for (my $j=0; $j<scalar @$ptrGff; $j++){
+		my $f = $ptrGff->[$j]{feat};
+		next unless ( _is_in_featuresArray($f, $ptrFeaturesArray) );
+		
+		my $start = $ptrGff->[$j]{start};
+		my $end = $ptrGff->[$j]{end};
+		my $chromosome = $ptrGff->[$j]{chromosome};
+		
+		my $featCode;
+		if (defined($ptrFeatures)){
+			$featCode = $ptrFeatures->{$f};
+		}else{
+			$featCode = $featHash{$f};
+		}
+
+		 _add_feature_to_specified_area($ptrAnnotation, $chromosome, $start, $end, $featCode);
+	}
+}
+
+
+sub _add_feature_to_specified_area{
+	my ($ptrAnnotation, $chromosome, $start, $end, $featCode)=@_;
+	
+	for (my $i = $start; $i<=$end; $i++){
+		next unless defined($ptrAnnotation->{$chromosome}[$i]);
+		next if $ptrAnnotation->{$chromosome}[$i]{feat}=~m/\Q$featCode\E/;			
+		$ptrAnnotation->{$chromosome}[$i]{feat} = $ptrAnnotation->{$chromosome}[$i]{feat}.$featCode;
+	}
+	
+	
+}
+
+sub _is_in_featuresArray{
+	my ($f, $ptrFeaturesArray)=@_;
+	
+	my $isInArray=0;
+
+	foreach my $feature (@{$ptrFeaturesArray}){
+		next unless ($feature eq $f);
+		$isInArray=1;
+	}
+
+	return $isInArray;
+}
+
+
+
+sub _overwrite_and_add_feat_hash{
+	my ($ptrAnnotation, $ptrGff, $ptrFeatures)=@_;
+
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "chromosome_arm",  $ptrFeatures);
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "intron",  $ptrFeatures);
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "exon", $ptrFeatures);
+		
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "ncRNA", $ptrFeatures);
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "tRNA", $ptrFeatures);
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "snoRNA", $ptrFeatures);
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "snRNA", $ptrFeatures);
+	_overwrite_feature_whole_annotation($ptrAnnotation, $ptrGff, "rRNA", $ptrFeatures);
+	
+	my $ptrAddFeaturesArray = [
+		"CDS", 
+		"five_prime_UTR", 
+		"three_prime_UTR", 
+		"enhancer", 
+		"miRNA", 
+		"regulatory_region", 
+		"pseudogene", 
+		"transposable_element", 
+		"pre_miRNA"
+	];
+	_add_features($ptrAnnotation, $ptrGff, $ptrAddFeaturesArray, $ptrFeatures);
+	
+	return $ptrAnnotation;
+}
+
+
+
+
 sub _correct_chromosome_name{
 	my ($chr)=@_;
 	if (substr($chr, 0, 3) eq "chr"){
