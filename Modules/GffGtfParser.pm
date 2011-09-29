@@ -320,7 +320,7 @@ sub _calculate_characteristics_GFF{
 				$ptrOut->{$feature}{pi} = $ptrPi->{$feature};	
 			}elsif($MEASURE eq "theta"){
 				$ptrOut->{$feature}{theta} = $ptrTheta->{$feature};		
-			}elsif{
+			}elsif($MEASURE eq "D")
 				$ptrOut->{$feature}{d} = $ptrD->{$feature};			
 			}else{
 				$ptrOut->{$feature}{pi} = $ptrPi->{$feature};	
@@ -336,7 +336,7 @@ sub _calculate_characteristics_GFF{
 				$ptrOut->{$feature}{pi} = 0;	
 			}elsif($MEASURE eq "theta"){
 				$ptrOut->{$feature}{theta} = 0;		
-			}elsif{
+			}elsif($MEASURE eq "d")
 				$ptrOut->{$feature}{d} = 0;			
 			}else{
 				$ptrOut->{$feature}{pi} = 0;	
