@@ -474,7 +474,7 @@ sub _calculate_characteristics_GFF{
 			$ptrOut->{$feature}{totalLength} = 0;
 		}
 
-		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}!=0)){
+		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}>0)and($ptrCoveredLength->{$feature} ne "na")){
 			$ptrOut->{$feature}{coveredLength} = $ptrCoveredLength->{$feature};
 			
 			if ($MEASURE eq "pi"){
@@ -488,9 +488,22 @@ sub _calculate_characteristics_GFF{
 				$ptrOut->{$feature}{theta} = $ptrTheta->{$feature};					
 				$ptrOut->{$feature}{d} = $ptrD->{$feature};							
 			}
+		}elsif($ptrCoveredLength->{$feature} eq "na"){
 			
+			$ptrOut->{$feature}{coveredLength} = "na";
 			
-		};
+			if ($MEASURE eq "pi"){
+				$ptrOut->{$feature}{pi} = "na";	
+			}elsif($MEASURE eq "theta"){
+				$ptrOut->{$feature}{theta} = "na";
+			}elsif($MEASURE eq "d"){
+				$ptrOut->{$feature}{d} = "na";
+			}else{
+				$ptrOut->{$feature}{pi} = "na";
+				$ptrOut->{$feature}{theta} = "na";
+				$ptrOut->{$feature}{d} = "na";
+			}
+		}
 	}	
 	return $ptrOut;
 }
