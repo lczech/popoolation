@@ -428,8 +428,10 @@ sub _calculate_characteristics_GFF{
 	my $ptrTheta = {};
 	my $ptrD = {};
 
-	foreach my $feature (keys %$ptrInverseFeatHash){
+	foreach my $code (keys %$ptrInverseFeatHash){
 		
+		my $feature = $ptrInverseFeatHash->{$code};
+				
 		if (defined($ptrCoveredLength->{$feature}) and ($ptrCoveredLength->{$feature}>0) ){
 		
 			if ($MEASURE eq "pi"){
@@ -460,10 +462,7 @@ sub _calculate_characteristics_GFF{
 		}		
 	}
 	
-	print Dumper($ptrD);	
-
-	
-	my $ptrOut={};
+#	print Dumper($ptrD);	
 	
 	foreach my $code (keys %$ptrInverseFeatHash){
 		
@@ -474,10 +473,6 @@ sub _calculate_characteristics_GFF{
 		}else{
 			$ptrOut->{$feature}{totalLength} = 0;
 		}
-
-		
-		print Dumper( exists($ptrCoveredLength->{$feature}));
-		print Dumper($ptrCoveredLength->{$feature});
 
 		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}>0)and($ptrCoveredLength->{$feature} ne "na")){
 			$ptrOut->{$feature}{coveredLength} = $ptrCoveredLength->{$feature};
