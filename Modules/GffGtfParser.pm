@@ -511,13 +511,14 @@ sub print_variance_for_feature{
 		print $outFileHandle "#feature\ttotal_length\tcovered_length\tpi\ttheta\tTajD\n";
 	}
 	
-
+	print $outFileHandle Dumper($ptrGenomeCharacteristics);
+		
 
 	if ($MEASURE eq "pi"){
 
 		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
-			print "$feature\t".
+			print $outFileHandle "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{coveredLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{pi}\n";
@@ -528,7 +529,7 @@ sub print_variance_for_feature{
 		
 		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
-			print "$feature\t".
+			print $outFileHandle "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{coveredLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{theta}\n";
@@ -538,7 +539,7 @@ sub print_variance_for_feature{
 
 		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
-			print "$feature\t".
+			print $outFileHandle "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{coveredLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{d}\n";
@@ -548,7 +549,7 @@ sub print_variance_for_feature{
 
 		foreach my $code (keys %$ptrInverseFeatHash){
 			my $feature = $ptrInverseFeatHash->{$code};
-			print "$feature\t".
+			print $outFileHandle "$feature\t".
 				 "$ptrGenomeCharacteristics->{$feature}{totalLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{coveredLength}\t".
 				 "$ptrGenomeCharacteristics->{$feature}{pi}\t".
