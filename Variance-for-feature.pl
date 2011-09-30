@@ -66,6 +66,8 @@ GetOptions(
 		$paramsFile = "STDERR";	
 	}
 	
+	print STDERR $paramsFile;
+	
 	my $startTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 
 	my $ptrGenomeCharacteristics = get_characteristics_of_genome_gff_pileup(
