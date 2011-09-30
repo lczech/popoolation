@@ -459,6 +459,8 @@ sub _calculate_characteristics_GFF{
 			}
 		}
 		
+		print Dumper($ptrD);
+		
 	}	
 
 	
