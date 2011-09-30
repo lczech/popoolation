@@ -66,8 +66,6 @@ GetOptions(
 		$paramsFile = "STDERR";	
 	}
 	
-	print STDERR $paramsFile;
-	
 	my $startTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 
 	my $ptrGenomeCharacteristics = get_characteristics_of_genome_gff_pileup(
@@ -75,7 +73,7 @@ GetOptions(
                               $QUAL_ENCODING, $MIN_COUNT, $MIN_COV, $MAX_COV, $MIN_QUAL,
 			                        $POOL_SIZE,$MEASURE, $UNCORRECTED);
 	
-	print_variance_for_feature($ptrGenomeCharacteristics, $outFileHandle, $0, $paramsFile);
+	print_variance_for_feature($ptrGenomeCharacteristics, $outFileHandle, $MEASURE, $0, $paramsFile);
 		
 	my $endTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 	
