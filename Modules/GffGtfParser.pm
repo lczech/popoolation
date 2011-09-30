@@ -476,7 +476,7 @@ sub _calculate_characteristics_GFF{
 			$ptrOut->{$feature}{totalLength} = 0;
 		}
 
-		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}>0)and($ptrCoveredLength->{$feature} ne "na")){
+		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature} ne "na")){
 			$ptrOut->{$feature}{coveredLength} = $ptrCoveredLength->{$feature};
 			
 			if ($MEASURE eq "pi"){
@@ -526,7 +526,7 @@ sub print_variance_for_feature{
 		print $outFileHandle "#feature\ttotal_length\tcovered_length\tpi\ttheta\tTajD\n";
 	}
 	
-	print $outFileHandle Dumper($ptrGenomeCharacteristics);
+#	print $outFileHandle Dumper($ptrGenomeCharacteristics);
 		
 
 	if ($MEASURE eq "pi"){
