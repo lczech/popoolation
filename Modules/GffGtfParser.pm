@@ -457,11 +457,10 @@ sub _calculate_characteristics_GFF{
 				$ptrTheta->{$feature} = "na"; 
 				$ptrD->{$feature} = "na"; 
 			}
-		}
-		
-		print Dumper($ptrD);
-		
-	}	
+		}		
+	}
+	
+	print Dumper($ptrD);	
 
 	
 	my $ptrOut={};
