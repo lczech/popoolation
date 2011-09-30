@@ -464,6 +464,8 @@ sub _calculate_characteristics_GFF{
 	
 #	print Dumper($ptrD);	
 	
+	my $ptrOut={};
+	
 	foreach my $code (keys %$ptrInverseFeatHash){
 		
 		my $feature = $ptrInverseFeatHash->{$code};
