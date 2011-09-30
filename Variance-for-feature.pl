@@ -56,16 +56,15 @@ GetOptions(
 	if ($POOL_SIZE == 0){pod2usage(-msg=>"Do not specified required option --pool-size  ",-verbose=>1)};
 	
 	my $outFileHandle;
-	if (defined($OUT_FILE)){
-		print "if\n";
-		open $outFileHandle, ">", $OUT_FILE or die "Could not write an output to $OUT_FILE";
-	}else{
-		print "else\n";
-		$outFileHandle = *STDOUT;
-	}
+	my $paramsFile;
 
-	print $OUT_FILE, ", ", defined($OUT_FILE), "\n";
-	
+	if (defined($OUT_FILE)){
+		open $outFileHandle, ">", $OUT_FILE or die "Could not write an output to $OUT_FILE";
+		$paramsFile = $OUT_FILE."params";
+	}else{
+		$outFileHandle = *STDOUT;
+		$paramsFile = "STDERR";	
+	}
 	
 	my $startTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 
@@ -73,15 +72,9 @@ GetOptions(
                               $GFF_FILE, $PILEUP_FILE,
                               $QUAL_ENCODING, $MIN_COUNT, $MIN_COV, $MAX_COV, $MIN_QUAL,
 			                        $POOL_SIZE,$MEASURE, $UNCORRECTED);
-
 	
-	
-	
-	if (defined($OUT_FILE)){
-		print_variance_for_feature($ptrGenomeCharacteristics, $outFileHandle, $0, $OUT_FILE."params");
-	}else{
-		print_variance_for_feature($ptrGenomeCharacteristics, $outFileHandle, $0, "STDERR");	
-	}
+	print_variance_for_feature($ptrGenomeCharacteristics, $outFileHandle, $0, $paramsFile);
+		
 	my $endTime = POSIX::strftime("%m/%d/%Y %H:%M:%S\n", localtime);
 	
 	print_input_params($MEASURE, $PILEUP_FILE, $GFF_FILE, $OUT_FILE, $QUAL_ENCODING, $MIN_COUNT, $MIN_QUAL, $POOL_SIZE, $MIN_COV, $MAX_COV, $UNCORRECTED, $startTime, $endTime);
