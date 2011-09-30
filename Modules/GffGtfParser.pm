@@ -474,6 +474,8 @@ sub _calculate_characteristics_GFF{
 			$ptrOut->{$feature}{totalLength} = 0;
 		}
 
+		print defined($ptrCoveredLength->{$feature}, ", ", $ptrCoveredLength->{$feature},"\n";
+
 		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}>0)and($ptrCoveredLength->{$feature} ne "na")){
 			$ptrOut->{$feature}{coveredLength} = $ptrCoveredLength->{$feature};
 			
