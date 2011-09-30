@@ -60,7 +60,7 @@ GetOptions(
 
 	if (defined($OUT_FILE)){
 		open $outFileHandle, ">", $OUT_FILE or die "Could not write an output to $OUT_FILE";
-		$paramsFile = $OUT_FILE."params";
+		$paramsFile = $OUT_FILE.".params";
 	}else{
 		$outFileHandle = *STDOUT;
 		$paramsFile = "STDERR";	
