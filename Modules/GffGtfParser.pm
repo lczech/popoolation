@@ -428,7 +428,7 @@ sub _calculate_characteristics_GFF{
 	my $ptrTheta = {};
 	my $ptrD = {};
 
-	foreach my $feature (keys %$ptrCoveredLength){
+	foreach my $feature (keys %$ptrInverseFeatHash){
 		
 		if (defined($ptrCoveredLength->{$feature}) and ($ptrCoveredLength->{$feature}>0) ){
 		
@@ -474,6 +474,7 @@ sub _calculate_characteristics_GFF{
 			$ptrOut->{$feature}{totalLength} = 0;
 		}
 
+		
 		print Dumper( exists($ptrCoveredLength->{$feature}));
 		print Dumper($ptrCoveredLength->{$feature});
 
