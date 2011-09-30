@@ -474,7 +474,7 @@ sub _calculate_characteristics_GFF{
 			$ptrOut->{$feature}{totalLength} = 0;
 		}
 
-		print Dumper( defined($ptrCoveredLength->{$feature}));
+		print Dumper( exists($ptrCoveredLength->{$feature}));
 		print Dumper($ptrCoveredLength->{$feature});
 
 		if (defined($ptrCoveredLength->{$feature})and($ptrCoveredLength->{$feature}>0)and($ptrCoveredLength->{$feature} ne "na")){
