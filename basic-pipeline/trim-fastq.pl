@@ -24,6 +24,7 @@ use Pileup;
     my $input2="";
     my $output="";
     my $verbose=1;
+    my $no5ptrim=0;
     
     GetOptions(
         "input1=s"              =>\$input1,
@@ -34,6 +35,7 @@ use Pileup;
         "fastq-type=s"          =>\$fastqtype,
         "discard-internal-N"    =>\$discardRemainingNs,
         "no-trim-quality"       =>sub{$trimQuality=0},
+        "no-5p-trim"            =>\$no5ptrim,
         "quit"                  =>sub{$verbose=0},
         "test"                  =>\$test,
         "help"                  =>\$help
@@ -64,18 +66,27 @@ use Pileup;
     
     
     my $encoder=get_quality_encoder($fastqtype);
+    my $trimmingalgorithm;
+    if($no5ptrim)
+    {
+        $trimmingalgorithm=\&Utility::trimNo5pTrim;
+    }
+    else
+    {
+        $trimmingalgorithm=\&Utility::trimQualityMott;
+    }
     
     
     if(-e $input2)
     {
         print "Found an existing file for the second read; Switching to paired-read mode\n";
         
-        MainProc::processPE($input1,$input2,$output,$encoder,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$verbose);
+        MainProc::processPE($input1,$input2,$output,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose);
     }
     else
     {
         print  "Did not find an existing file for the second read; Switching to single-read mode\n";
-        MainProc::processSE($input1,$output,$encoder,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$verbose);
+        MainProc::processSE($input1,$output,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose);
         
     }
     exit;
@@ -93,11 +104,13 @@ use Pileup;
             my $input=shift;
             my $output=shift;
             my $encoder=shift;
+            my $trimmingalgorithm=shift;
             my $trimQuality=shift;
             my $qualThreshold=shift;
             my $processStep=shift;
             my $minLength=shift;
             my $discardRemainingNs =shift;
+            my $no5ptrim=shift;
             my $verbose=shift;
             
             my $fastqr=FastqReader->new($input);
@@ -120,7 +133,7 @@ use Pileup;
                 print "Processed $countProcessed reads\n" if($verbose && ($countProcessed % $processStep)==0); 
                 
                 my($c5ptrims,$c3ptrims)=(0,0);
-                ($nucleotide,$quality,$c5ptrims,$c3ptrims)=Utility::trimNs($nucleotide,$quality);
+                ($nucleotide,$quality,$c5ptrims,$c3ptrims)=Utility::trimNs($nucleotide,$quality,$no5ptrim);
                 $count5ptrims+=$c5ptrims;
                 $count3ptrims+=$c3ptrims;
                 
@@ -136,7 +149,7 @@ use Pileup;
                 {
                     # do the quality trimming using the encoder chosen by the user
                     my $ctrimqual=0;
-                    ($nucleotide,$quality,$ctrimqual)=Utility::trimQualityMott($nucleotide, $quality, $qualThreshold, $encoder);
+                    ($nucleotide,$quality,$ctrimqual)=$trimmingalgorithm->($nucleotide, $quality, $qualThreshold, $encoder);
                     $countQualityTrims+=$ctrimqual;
                 }
                 
@@ -182,11 +195,13 @@ use Pileup;
             my $input2=shift;
             my $outputPrefix=shift;
             my $encoder=shift;
+            my $trimmingalgorithm=shift;
             my $trimQuality=shift;
             my $qualThreshold=shift;
             my $processStep=shift;
             my $minLength=shift;
             my $discardRemainingNs =shift;
+            my $no5ptrim=shift;
             my $verbose=shift;
             
             my $output1     =$outputPrefix."_1";
@@ -234,10 +249,10 @@ use Pileup;
                 
                 my($c5ptr1,$c3ptr1)=(0,0);
                 my($c5ptr2,$c3ptr2)=(0,0);
-                ($nuc1,$qual1,$c5ptr1,$c3ptr1)=Utility::trimNs($nuc1,$qual1);
+                ($nuc1,$qual1,$c5ptr1,$c3ptr1)=Utility::trimNs($nuc1,$qual1,$no5ptrim);
                 $count5ptr1+=$c5ptr1;
                 $count3ptr1+=$c3ptr1;
-                ($nuc2,$qual2,$c5ptr2,$c3ptr2)=Utility::trimNs($nuc2,$qual2);
+                ($nuc2,$qual2,$c5ptr2,$c3ptr2)=Utility::trimNs($nuc2,$qual2,$no5ptrim);
                 $count5ptr2+=$c5ptr2;
                 $count3ptr2+=$c3ptr2;
                 
@@ -260,10 +275,10 @@ use Pileup;
                 {
                     # do the quality trimming using the encoder chosen by the user
                     my ($ctrimqual1,$ctrimqual2)=(0,0);
-                    ($nuc1,$qual1,$ctrimqual1)=Utility::trimQualityMott($nuc1, $qual1, $qualThreshold, $encoder) if $keep1 and $nuc1;
+                    ($nuc1,$qual1,$ctrimqual1)=$trimmingalgorithm->($nuc1, $qual1, $qualThreshold, $encoder) if $keep1 and $nuc1;
                     $countQualityTrims1+=$ctrimqual1;
                     
-                    ($nuc2,$qual2,$ctrimqual2)=Utility::trimQualityMott($nuc2, $qual2, $qualThreshold, $encoder) if $keep2 and $nuc2;
+                    ($nuc2,$qual2,$ctrimqual2)=$trimmingalgorithm->($nuc2, $qual2, $qualThreshold, $encoder) if $keep2 and $nuc2;
                     $countQualityTrims2+=$ctrimqual2;
                 }
                 
@@ -379,10 +394,11 @@ use Pileup;
         {
             my $nuc=shift;
             my $qual=shift;
+            my $no5ptrim=shift;
             
             my($t5,$t3)=(0,0);
             
-            if($nuc=~m/^(N+)/i)
+            if((not $no5ptrim) and $nuc=~m/^(N+)/i)
             {
                 my $l=length($1);
                 
@@ -426,6 +442,7 @@ use Pileup;
             return ($nuc,$qual,$trimq);
         }
         
+        
         sub trimQualityMott
         {
             my $nuc=shift;
@@ -443,6 +460,45 @@ use Pileup;
 
             $nuc=substr($nuc,$qualhsp->{start},$newleng);
             $qual=substr($qual,$qualhsp->{start},$newleng);
+            
+            my $trimq=0;
+            $trimq=1 if $orileng!=$newleng;
+            die "length of quality and nucleotide sequence must be equal" if length($nuc) != length($qual); 
+            return ($nuc,$qual,$trimq);
+        }
+        
+        sub trimNo5pTrim
+        {
+            my $nuc=shift;
+            my $qual=shift;
+            die "length of quality and nucleotide sequence has to be identical $nuc vs $qual" if length($nuc)!=length($qual);
+            my $minQual=shift;
+            my $encoder=shift;
+            
+            
+            my @quals=split //,$qual;
+            my $highscore=0;
+            my $activescore=0;
+            my $highscoreend=-1;
+            for(my $i=0; $i<@quals; $i++)
+            {
+                my $q=$encoder->($quals[$i]);
+                my $ts=$q-$minQual;
+                $activescore+=$ts;
+                if($activescore> $highscore)
+                {
+                    $highscore=$activescore;
+                    $highscoreend=$i;
+                }
+            }
+            
+            return ("","",1) unless $highscore; #return nothing if no hsp is found
+            
+            my $orileng=length($nuc);
+            my $newleng=$highscoreend+1;
+
+            $nuc=substr($nuc,0,$newleng);
+            $qual=substr($qual,0,$newleng);
             
             my $trimq=0;
             $trimq=1 if $orileng!=$newleng;
@@ -654,36 +710,65 @@ use Pileup;
         testNTrimming();
         #testTrimQuality();
         testTrimQualityMott();
+        testTrimQualityNo5pTrim();
         exit;
      }
  
      sub testNTrimming
      {
-        my($t1,$t2,$c5,$c3)=Utility::trimNs("AAAN","xxxt");
+        my($t1,$t2,$c5,$c3)=Utility::trimNs("AAAN","xxxt",0);
         is($t1,"AAA","trim Ns: AAAN trimmed to AAA");
         is($t2,"xxx","trim Ns: quality trimmed accordingly");
         is($c5,0,"trim Ns: flag indicating 5p trim correct");
         is($c3,1,"trim Ns: flag indicating 3p trim correct");
         
-        ($t1,$t2)=Utility::trimNs("AAANNNNNNNNNN","xxxtttttttttt");
+        ($t1,$t2)=Utility::trimNs("AAANNNNNNNNNN","xxxtttttttttt",0);
         is($t1,"AAA","trim Ns: AAANNNNNNNNNN trimmed to AAA");
         is($t2,"xxx","trim Ns: quality trimmed accordingly");
         
-        ($t1,$t2)=Utility::trimNs("NAAA","txxx");
+        ($t1,$t2)=Utility::trimNs("NAAA","txxx",0);
         is($t1,"AAA","trim Ns: NAAA trimmed to AAA");
         is($t2,"xxx","trim Ns: quality trimmed accordingly");
         
-        ($t1,$t2,$c5,$c3)=Utility::trimNs("NNNNNAAA","tttttxxx");
+        ($t1,$t2,$c5,$c3)=Utility::trimNs("NNNNNAAA","tttttxxx",0);
         is($t1,"AAA","trim Ns: NNNNNAAA trimmed to AAA");
         is($t2,"xxx","trim Ns: quality trimmed accordingly");
         is($c5,1,"trim Ns: flag indicating 5p trim correct");
         is($c3,0,"trim Ns: flag indicating 3p trim correct");
         
-        ($t1,$t2,$c5,$c3)=Utility::trimNs("NNNNNAAANNNNN","tttttxxxttttt");
+        ($t1,$t2,$c5,$c3)=Utility::trimNs("NNNNNAAANNNNN","tttttxxxttttt",0);
         is($t1,"AAA","trim Ns: NNNNNAAANNNNN trimmed to AAA");
         is($t2,"xxx","trim Ns: quality trimmed accordingly");
         is($c5,1,"trim Ns: flag indicating 5p trim correct");
         is($c3,1,"trim Ns: flag indicating 3p trim correct");
+        
+        ($t1,$t2,$c5,$c3)=Utility::trimNs("AAAN","xxxt",1);
+        is($t1,"AAA","trim Ns: AAAN trimmed to AAA");
+        is($t2,"xxx","trim Ns: quality trimmed accordingly");
+        is($c5,0,"trim Ns: flag indicating 5p trim correct");
+        is($c3,1,"trim Ns: flag indicating 3p trim correct");
+        
+        ($t1,$t2)=Utility::trimNs("AAANNNNNNNNNN","xxxtttttttttt",1);
+        is($t1,"AAA","trim Ns: AAANNNNNNNNNN trimmed to AAA");
+        is($t2,"xxx","trim Ns: quality trimmed accordingly");
+        
+        ($t1,$t2)=Utility::trimNs("NAAA","txxx",1);
+        is($t1,"NAAA","trim Ns: NAAA not trimmed to AAA");
+        is($t2,"txxx","trim Ns: quality not trimmed accordingly");
+        
+        ($t1,$t2,$c5,$c3)=Utility::trimNs("NNNNNAAA","tttttxxx",1);
+        is($t1,"NNNNNAAA","trim Ns: NNNNNAAA not trimmed to AAA");
+        is($t2,"tttttxxx","trim Ns: quality not trimmed accordingly");
+        is($c5,0,"trim Ns: flag indicating 5p trim correct");
+        is($c3,0,"trim Ns: flag indicating 3p trim correct");
+        
+        ($t1,$t2,$c5,$c3)=Utility::trimNs("NNNNNAAANNNNN","tttttxxxttttt",1);
+        is($t1,"NNNNNAAA","trim Ns: NNNNNAAANNNNN trimmed to AAA");
+        is($t2,"tttttxxx","trim Ns: quality trimmed accordingly");
+        is($c5,0,"trim Ns: flag indicating 5p trim correct");
+        is($c3,1,"trim Ns: flag indicating 3p trim correct");
+        
+        
      }
      
     sub testTrimQualityMott
@@ -754,6 +839,54 @@ use Pileup;
         is($c,1,"trim quality: trimmed flag set correctly");
 
      }
+     
+     sub testTrimQualityNo5pTrim
+     {
+        my $t=get_quality_encoder("illumina");
+        
+        my($t1,$t2,$c);
+        #U=21
+        #T=20
+        #S=19
+        
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("AAAA","TTTT",19,$t);
+        is($t1,"AAAA","trim quality: min quality 20; AAAA with quality of TTTT not trimed");
+        is($t2,"TTTT","trim quality: quality was not trimmed either");
+        is($c,0,"trim quality: trimmed flag set correctly");
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("AAAAA","UUUTS",20,$t);
+        is($t1,"AAA","trim quality: min quality 20; AAAAA with quality of UUUTS trimmed to AAA");
+        is($t2,"UUU","trim quality: quality accordingly trimmed to UUU");
+        is($c,1,"trim quality: trimmed flag set correctly");
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("AAAA","TTTT",20,$t);
+        is($t1,"","trim quality: trimmed correctly");
+        is($t2,"","trim quality: quality was also trimmed correctly");
+        is($c,1,"trim quality: trimmed flag set correctly");
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("TTAAAATT","TTUUUUTT",20,$t);
+        is($t1,"TTAAAA","trim quality: sequence trimmed correctly");
+        is($t2,"TTUUUU","trim quality: quality was also trimmed correctly");
+        is($c,1,"trim quality: trimmed flag set correctly");
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("TTAAAATTCCCCC","SSUUUUAAUUUUU",20,$t);
+        is($t1,"TTAAAA","trim quality: sequence trimmed correctly");
+        is($t2,"SSUUUU","trim quality: quality was also trimmed correctly");
+        is($c,1,"trim quality: trimmed flag set correctly");
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("TTAAAAATTCCCC","SSUUUTTSSUUUT",20,$t);
+        is($t1,"TTAAAAATTCCC","trim quality: sequence trimmed correctly");
+        is($t2,"SSUUUTTSSUUU","trim quality: quality was also trimmed correctly");
+        is($c,1,"trim quality: trimmed flag set correctly");
+        
+        ($t1,$t2,$c)=Utility::trimNo5pTrim("TAAAAATTCCCCT","SUUUTTSSUUUTS",20,$t);
+        is($t1,"TAAAAATTCCC","trim quality: sequence trimmed correctly");
+        is($t2,"SUUUTTSSUUU","trim quality: quality was also trimmed correctly");
+        is($c,1,"trim quality: trimmed flag set correctly");
+     }
+     
+     
      
      sub testTrimQuality
      {
@@ -890,6 +1023,11 @@ The minimum length of the read after trimming; default=40
 
 toggle switch: switch of trimming of quality
 
+=item B<--no-5p-trim>
+
+togle switch; Disable 5'-trimming (quality and 'N'); May be useful for the identification of duplicates when using trimming of reads.
+Duplicates are usually identified by the 5' mapping position which should thus not be modified by trimming. default=off
+
 =item B<--quit>
 
 suppress output to stdout (console)
@@ -933,13 +1071,13 @@ The fastq file produced by the Illumina pipeline can be directyl use. Example in
 
 the output file will be in fastq. The quality sequence will be provided in the same format as in the input file (apart from trimming);
     
-     @read1
-     AAAAAAAAAATTTTTTTTTTAAAAAAAAAA
-     +read1
-     UUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
-     @read2
-     AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-     +read2
-     UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+    @read1
+    AAAAAAAAAATTTTTTTTTTAAAAAAAAAA
+    +read1
+    UUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+    @read2
+    AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    +read2
+    UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
 
 =cut
