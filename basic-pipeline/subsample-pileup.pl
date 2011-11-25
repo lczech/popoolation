@@ -13,7 +13,7 @@ my $input="";
 my $output="";
 my $help=0;
 my $test=0;
-my $minqual=0;
+my $minqual=20;
 my $maxcoverage=0;
 my $targetcoverage=0;
 my $encoding="illumina";
@@ -328,7 +328,7 @@ default=illumina
 
 =item B<--min-qual>
 
-The minimum quality; Bases in the pileup having a lower quality than this will be ignored, for estimating the coverage and calling a SNP. default=0
+The minimum quality; Bases in the pileup having a lower quality than this will be ignored, for estimating the coverage and calling a SNP. default=20
 
 =item B<--method>
 
