@@ -234,12 +234,16 @@ sub get_pileup_parser
             $pu->{issnp}=1 if $alcount>=2;
             
             # pure snps
-            $pu->{ispuresnp}=0;
-            if($pu->{issnp} and ($pu->{del} < 1 or $tolerateDeletions))
+            $pu->{ispuresnp}=$pu->{issnp};
+            $pu->{ignore}=0;
+            if($pu->{del}>=$mincount and not $tolerateDeletions)
             {
-                $pu->{ispuresnp}=1;
+                $pu->{ignore}=1;
+                $pu->{iscov}=0;
+                $pu->{issnp}=0;
+                $pu->{ispuresnp}=0;
             }
-            
+
         }
         
         # pos, chr, refc, totcov, eucov, A, T, C, G, del, N, iscov, issnp, ispuresnp 

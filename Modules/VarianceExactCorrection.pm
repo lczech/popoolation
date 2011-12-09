@@ -5,7 +5,7 @@
     use FindBin qw/$Bin/;
     use lib "$Bin";
     use VarMath;
-    my $debug=0;
+
 
     sub new {
         my $class = shift;
@@ -99,12 +99,11 @@
         my $poolsize=$self->{n};
         my $mincount=$self->{b};
         my $mincoverage=$self->{mincoverage};
-        unless($debug)
-        {
-            die "Corrected Tajima's D error\nMinimum count needs to be set to 2 for calculating the corrected Tajima's D;\n".
-            "In case 2 is insufficient we recommend to subsample the reads to a smaller coverage" unless $mincount==2;
-            die "Corrected Tajima's D error\n Poolsize >> mincoverage (as internal aproximation: 3 * minimumcoverage < poolsize)" unless 3*$mincoverage < $poolsize;
-        }
+       
+        die "Corrected Tajima's D error\nMinimum count needs to be set to 2 for calculating the corrected Tajima's D;\n".
+        "In case 2 is insufficient we recommend to subsample the reads to a smaller coverage" unless $mincount==2;
+        die "Corrected Tajima's D error\n Poolsize >> mincoverage (as internal aproximation: 3 * minimumcoverage < poolsize)" unless 3*$mincoverage < $poolsize;
+        
 
         my $measurecalculator=$self->{d};
         my $d=$measurecalculator->($mincount,$poolsize,$mincoverage,$snps);

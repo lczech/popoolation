@@ -525,7 +525,7 @@ exit;
         # weird cases; * = deletion and N
         $str=
         "2L\t1\tA\t9\tCCCCCAAAA\tTTTTTTTTT\n".
-        "2L\t2\tA\t8\tCCCC*AAA\tTTTTTTTT\n".
+        "2L\t2\tA\t8\tCCCC**AAA\tTTTTTTTTT\n".
         "2L\t3\tA\t5\tGGGTTNNc\tTTTTTTTT\n".
         "2L\t4\tA\t9\tCCCCCTTTTN\tTTTTTTTTTT\n"
         ;
@@ -534,28 +534,27 @@ exit;
         
         is($win->{chr},"2L","PileupSlider; chromosome ok");
         is($win->{window},3,"PileupSlider; window ok");
-        is($win->{count_covered},3,"PileupSlider; coverage count ok");
+        is($win->{count_covered},2,"PileupSlider; coverage count ok");
         is($win->{count_snp},2,"PileupSlider; SNP count is ok");
         is($win->{start},0,"PileupSlider; start position is ok");
         is($win->{end},3,"PileupSlider; end position is ok");
         is($win->{data}[0]{del},0,"PileupSlider; deletion count is ok");
-        is($win->{data}[1]{del},1,"PileupSlider; deletion count is ok");
+        is($win->{data}[1]{del},2,"PileupSlider; deletion count is ok");
         is($win->{data}[2]{del},0,"PileupSlider; deletion count is ok");
         is($win->{data}[0]{N},0,"PileupSlider; N count is ok");
         is($win->{data}[1]{N},0,"PileupSlider; N count is ok");
         is($win->{data}[2]{N},2,"PileupSlider; N count is ok");
         is($win->{data}[0]{issnp},1,"PileupSlider; snp-identification is ok");
-        is($win->{data}[1]{issnp},1,"PileupSlider; snp-identificationis ok");
+        is($win->{data}[1]{issnp},0,"PileupSlider; snp-identificationis ok");
         is($win->{data}[2]{issnp},1,"PileupSlider; snp-identification is ok");
         is($win->{data}[0]{ispuresnp},1,"PileupSlider; pure snp-identification is ok");
         is($win->{data}[1]{ispuresnp},0,"PileupSlider; pure snp-identification is ok");
         is($win->{data}[2]{ispuresnp},1,"PileupSlider; pure snp-identification is ok");
         
-        
         $win=$pilsl->nextWindow();
         is($win->{chr},"2L","PileupSlider; chromosome ok");
         is($win->{window},3,"PileupSlider; window ok");
-        is($win->{count_covered},3,"PileupSlider; coverage count ok");
+        is($win->{count_covered},2,"PileupSlider; coverage count ok");
         is($win->{count_snp},2,"PileupSlider; SNP count is ok");
         is($win->{start},1,"PileupSlider; start position is ok");
         is($win->{end},4,"PileupSlider; end position is ok");
@@ -565,7 +564,7 @@ exit;
         is($win->{data}[0]{eucov},7,"PileupSlider; eu-coverage is ok");
         is($win->{data}[1]{eucov},5,"PileupSlider; eu-coverage is ok");
         is($win->{data}[2]{eucov},9,"PileupSlider; eu-coverage is ok");
-        is($win->{data}[0]{totcov},8,"PileupSlider; total coverage is ok");
+        is($win->{data}[0]{totcov},9,"PileupSlider; total coverage is ok");
         is($win->{data}[1]{totcov},8,"PileupSlider; total coverage is ok");
         is($win->{data}[2]{totcov},10,"PileupSlider; total coverage is ok");
         

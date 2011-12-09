@@ -209,6 +209,7 @@
         is($res->{T},2,"parsePileup; T count is ok");
         is($res->{C},2,"parsePileup; C count is ok");
         is($res->{G},0,"parsePileup; G count is ok");
+        is($res->{ignore},0,"parsePileup; ignore flag set correctly");
         
         
         # deletions:
@@ -218,22 +219,23 @@
         is($res->{pos},90140,"parsePileup; position is ok");
         is($res->{eucov},4,"parsePileup; coverage is ok");
         is($res->{totcov},6,"parsePileup; coverage is ok");
-        is($res->{iscov},1,"parsePileup; is covered ok");
-        is($res->{issnp},1,"parsePileup; is snp ok");
+        is($res->{iscov},0,"parsePileup; is covered ok");
+        is($res->{issnp},0,"parsePileup; is snp ok");
         is($res->{A},0,"parsePileup; A count is ok");
         is($res->{T},0,"parsePileup; T count is ok");
         is($res->{N},0,"parsePileup; N count is ok");
         is($res->{C},2,"parsePileup; C count is ok");
         is($res->{G},2,"parsePileup; G count is ok");
         is($res->{del},2,"parsePileup; del count is ok");
+        is($res->{ignore},1,"parsePileup; ignore flag set correctly");
         
         $res=$pp->("2L\t90140\tN\t9\tCcGg**Nn\taaaaaaaa");
         is($res->{chr},"2L","parsePileup; chromosome is ok");
         is($res->{pos},90140,"parsePileup; position is ok");
         is($res->{eucov},4,"parsePileup; coverage is ok");
         is($res->{totcov},8,"parsePileup; coverage is ok");
-        is($res->{iscov},1,"parsePileup; is covered ok");
-        is($res->{issnp},1,"parsePileup; is snp ok");
+        is($res->{iscov},0,"parsePileup; is covered ok");
+        is($res->{issnp},0,"parsePileup; is snp ok");
         is($res->{ispuresnp},0,"parsePileup; is pure snp ok");
         is($res->{A},0,"parsePileup; A count is ok");
         is($res->{T},0,"parsePileup; T count is ok");
@@ -241,6 +243,7 @@
         is($res->{C},2,"parsePileup; C count is ok");
         is($res->{G},2,"parsePileup; G count is ok");
         is($res->{del},2,"parsePileup; del count is ok");
+        is($res->{ignore},1,"parsePileup; ignore flag set correctly");
         
         # is covered
         $pp=get_pileup_parser("illumina",2,4,1000000,0);
