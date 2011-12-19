@@ -34,14 +34,12 @@ GetOptions(
 ) or die "Invalid arguments";
 
 pod2usage(-verbose=>2) if $help;
-VarTest::runTests() if $test;
+SubsTest::runTests() if $test;
 pod2usage(-msg=>"Could not find pileup file",-verbose=>1) unless -e $input;
 pod2usage(-msg=>"Output file not provided",-verbose=>1) unless  $output;
 pod2usage(-msg=>"Please provide a valid target coverage (>0)",-verbose=>1) unless $targetcoverage;
 pod2usage(-msg=>"Please provide a valid maximum coverage (>0)",-verbose=>1) unless $maxcoverage;
 pod2usage(-msg=>"Please provide a valid method",-verbose=>1) unless $method;
-
-
 
 my $paramfile=$output.".params";
 open my $pfh, ">",$paramfile or die "Could not open $paramfile\n";
@@ -278,6 +276,165 @@ exit;
         }
     }
     
+    
+}
+
+{
+    package SubsTest;
+    use strict;
+    use warnings;
+    use FindBin qw($RealBin);
+    use lib "$RealBin/../Modules";
+    use Test::PileupParser;    
+    use Test;
+    sub runTests
+    {
+        run_PileupParserTests();
+        test_freqwithoutreplacement();
+        test_freqwithreplacement();
+        print_teststat();
+        exit;
+    }
+    
+    sub convert_count_hash
+    {
+        my $str=shift;
+        my @a=split //,$str;
+        my $t={
+            A=>0,
+            T=>0,
+            C=>0,
+            G=>0,
+            N=>0,
+            '*'=>0
+        };
+        foreach my $a (@a)
+        {
+            $t->{$a}++;
+        }
+        
+        
+        return $t;
+        
+        
+        
+    }
+    
+    sub test_freqwithreplacement()
+    {
+        my $res=convert_count_hash(Utility::_freq_withreplacement(10,20,0,0,0,0,0)); # target A T C G del N
+        is($res->{A},10,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling with replacemt; Allele count is OK");
+        
+        $res=convert_count_hash(Utility::_freq_withreplacement(10,0,20,0,0,0,0)); 
+        is($res->{A},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{T},10,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling with replacemt; Allele count is OK");
+        
+        $res=convert_count_hash(Utility::_freq_withreplacement(10,0,0,20,0,0,0));
+        is($res->{A},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{C},10,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling with replacemt; Allele count is OK");
+
+        $res=convert_count_hash(Utility::_freq_withreplacement(10,0,0,0,20,0,0)); 
+        is($res->{A},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{G},10,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling with replacemt; Allele count is OK");
+
+        $res=convert_count_hash(Utility::_freq_withreplacement(10,0,0,0,0,20,0)); 
+        is($res->{A},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{'*'},10,"Testing sampling with replacemt; Allele count is OK");
+        
+        $res=convert_count_hash(Utility::_freq_withreplacement(10,0,0,0,0,0,20)); 
+        is($res->{A},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{N},10,"Testing sampling with replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling with replacemt; Allele count is OK");
+    }
+    
+    sub test_freqwithoutreplacement
+    {
+        my $res;
+        $res=convert_count_hash(Utility::_freq_withoutreplacement(10,20,0,0,0,0,0)); # target A T C G del N
+        is($res->{A},10,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling without replacemt; Allele count is OK");
+                  
+        $res=convert_count_hash(Utility::_freq_withoutreplacement(10,0,20,0,0,0,0)); 
+        is($res->{A},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{T},10,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling without replacemt; Allele count is OK");
+        
+        $res=convert_count_hash(Utility::_freq_withoutreplacement(10,0,0,20,0,0,0));
+        is($res->{A},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{C},10,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling without replacemt; Allele count is OK");
+
+        $res=convert_count_hash(Utility::_freq_withoutreplacement(10,0,0,0,20,0,0)); 
+        is($res->{A},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{G},10,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling without replacemt; Allele count is OK");
+
+        $res=convert_count_hash(Utility::_freq_withoutreplacement(10,0,0,0,0,20,0)); 
+        is($res->{A},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{N},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{'*'},10,"Testing sampling without replacemt; Allele count is OK");
+        
+        $res=convert_count_hash(Utility::_freq_withoutreplacement(10,0,0,0,0,0,20)); 
+        is($res->{A},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{T},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{C},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{G},0,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{N},10,"Testing sampling without replacemt; Allele count is OK");
+        is($res->{'*'},0,"Testing sampling without replacemt; Allele count is OK");
+        
+        for my $i (1..100)
+        {
+            $res=convert_count_hash(Utility::_freq_withoutreplacement(10,5,4,3,2,0,0)); 
+            is_smaller($res->{A},6,"Testing sampling without replacemt; Allele count is OK");
+            is_smaller($res->{T},5,"Testing sampling without replacemt; Allele count is OK");
+            is_smaller($res->{C},4,"Testing sampling without replacemt; Allele count is OK");
+            is_smaller($res->{G},3,"Testing sampling without replacemt; Allele count is OK");
+            is($res->{N},0,"Testing sampling without replacemt; Allele count is OK");
+            is($res->{'*'},0,"Testing sampling without replacemt; Allele count is OK");
+        }
+
+        
+    }
     
 }
 
