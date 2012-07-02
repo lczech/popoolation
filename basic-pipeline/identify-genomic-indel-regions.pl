@@ -306,8 +306,40 @@ exit;
         is($r->{end},34,"region_calculator: end correct");
         $r=$calc->();
         not_exists($r,"region_calculator; correct no more entries");
-
         
+        $indels=[{chr=>2,pos=>20,len=>10},{chr=>2,pos=>28,len=>5}];
+        $calc=Utility::get_region_calculator($indels,1);
+        $r=$calc->();
+        is($r->{chr},"2","region_calculator: chromosome correct");
+        is($r->{start},20,"region_calculator: start correct");
+        is($r->{end},34,"region_calculator: end correct");
+        
+        
+        $indels=[{chr=>2,pos=>36,len=>0},{chr=>2,pos=>20,len=>7},{chr=>2,pos=>28,len=>7}];
+        $calc=Utility::get_region_calculator($indels,3);
+        $r=$calc->();
+        is($r->{chr},"2","region_calculator: chromosome correct");
+        is($r->{start},18,"region_calculator: start correct");
+        is($r->{end},39,"region_calculator: end correct");
+
+        $indels=[{chr=>2,pos=>42,len=>1},{chr=>2,pos=>36,len=>0},{chr=>2,pos=>20,len=>7},{chr=>2,pos=>28,len=>7}];
+        $calc=Utility::get_region_calculator($indels,3);
+        $r=$calc->();
+        is($r->{chr},"2","region_calculator: chromosome correct");
+        is($r->{start},18,"region_calculator: start correct");
+        is($r->{end},46,"region_calculator: end correct");
+
+
+        $indels=[{chr=>2,pos=>43,len=>1},{chr=>2,pos=>36,len=>0},{chr=>2,pos=>20,len=>7},{chr=>2,pos=>28,len=>7}];
+        $calc=Utility::get_region_calculator($indels,3);
+        $r=$calc->();
+        is($r->{chr},"2","region_calculator: chromosome correct");
+        is($r->{start},18,"region_calculator: start correct");
+        is($r->{end},39,"region_calculator: end correct");
+        $r=$calc->();
+        is($r->{chr},"2","region_calculator: chromosome correct");
+        is($r->{start},41,"region_calculator: start correct");
+        is($r->{end},47,"region_calculator: end correct");
     }
 }
 
