@@ -485,7 +485,7 @@ default=illumina
 
 =item B<--min-qual>
 
-The minimum quality; Bases in the pileup having a lower quality than this will be ignored, for estimating the coverage and calling a SNP. default=20
+The minimum quality; Bases in the pileup having a lower quality than this will be ignored and not be used for subsampling. default=20
 
 =item B<--method>
 
