@@ -445,7 +445,7 @@ perl subsample-pileup.pl - Reduce the coverage of a pileup file to the given tar
 
 =head1 SYNOPSIS
 
-perl subsample-pileup.pl --input input.pileup --output output.pileup --target-coverage 50 --max-coverage 400 --min-qual 20 --mode random --fastq-type sanger
+perl subsample-pileup.pl --input input.pileup --output output.pileup --target-coverage 50 --max-coverage 400 --min-qual 20 --method withoutreplace --fastq-type sanger
 
 =head1 OPTIONS
 

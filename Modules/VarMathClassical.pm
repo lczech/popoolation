@@ -68,6 +68,7 @@ sub get_classical_theta_calculator
         return 0 unless $sites;
         
         my $n=_median_coverage($snps);
+        #my $n=50;
         return $sites/($a1c->($n));
     }
 }
@@ -200,6 +201,7 @@ sub get_a2_buffer
     {
 
         my $snps=shift;
+        return 50;
         my $coverages= [map {$_->{eucov}} @$snps];
         $coverages=[sort {$a<=>$b} @$coverages];
         my $snpcount=@$coverages;
