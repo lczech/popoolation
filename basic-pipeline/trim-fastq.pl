@@ -25,6 +25,7 @@ use Pileup;
     my $output="";
     my $verbose=1;
     my $no5ptrim=0;
+    my $nozip=0;
     
     GetOptions(
         "input1=s"              =>\$input1,
@@ -36,6 +37,7 @@ use Pileup;
         "discard-internal-N"    =>\$discardRemainingNs,
         "no-trim-quality"       =>sub{$trimQuality=0},
         "no-5p-trim"            =>\$no5ptrim,
+        "disable-zipped-output" =>\$nozip,
         "quit"                  =>sub{$verbose=0},
         "test"                  =>\$test,
         "help"                  =>\$help
@@ -61,10 +63,11 @@ use Pileup;
     print $pfh "Using trim-quality (no-trim-quality)\t$trimQuality\n";
     print $pfh "Using verbose (quit)\t$verbose\n";
     print $pfh "Using test\t$test\n";
+    print $pfh "Disable zipped output\t$nozip\n";
     print $pfh "Using help\t$help\n";
     close $pfh;
     
-    
+    my $ofscreater=MainProc::getofhcreater($nozip);
     my $encoder=get_quality_encoder($fastqtype);
     my $trimmingalgorithm;
     if($no5ptrim)
@@ -81,12 +84,12 @@ use Pileup;
     {
         print "Found an existing file for the second read; Switching to paired-read mode\n";
         
-        MainProc::processPE($input1,$input2,$output,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose);
+        MainProc::processPE($input1,$input2,$output,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
     }
     else
     {
         print  "Did not find an existing file for the second read; Switching to single-read mode\n";
-        MainProc::processSE($input1,$output,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose);
+        MainProc::processSE($input1,$output,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
         
     }
     exit;
@@ -98,6 +101,27 @@ use Pileup;
         package MainProc;
         use strict;
         use warnings;
+        use IO::Compress::Gzip;
+        
+        sub getofhcreater{
+            my $nozip=shift;
+            
+            return sub
+            {
+                my $outfile=shift;
+                my $ofh=undef;
+                if($nozip)
+                {
+                    open $ofh, ">", $outfile or die "Could not open output file $outfile $!";
+                }
+                else
+                {
+                    $outfile=$outfile . ".gz";
+                    $ofh = new IO::Compress::Gzip $outfile or die "Could not open gzipped output file $outfile $!"; 
+                }
+                return $ofh;
+            }
+        }
         
         sub processSE
         {
@@ -112,9 +136,10 @@ use Pileup;
             my $discardRemainingNs =shift;
             my $no5ptrim=shift;
             my $verbose=shift;
+            my $ofscreater=shift;
             
             my $fastqr=FastqReader->new($input);
-            open my $ofh, ">", $output or die "Could not open output file";
+            my $ofh=$ofscreater->($output);
             my($count5ptrims,$count3ptrims,$countRemainingNdiscards,$countQualityTrims,$countLengthDiscard)=(0,0,0,0,0);
             my $countProcessed=0;
             my $countPasFiltering=0;
@@ -203,14 +228,15 @@ use Pileup;
             my $discardRemainingNs =shift;
             my $no5ptrim=shift;
             my $verbose=shift;
+            my $ofscreater=shift;
             
             my $output1     =$outputPrefix."_1";
             my $output2     =$outputPrefix."_2";
             my $outputse    =$outputPrefix."_SE";
             
-            open my $ofh1, ">", $output1 or die "Could not open output file";
-            open my $ofh2, ">", $output2 or die "Could not open output file";
-            open my $ofhse, ">", $outputse or die "Could not open output file";
+            my $ofh1= $ofscreater->($output1);
+            my $ofh2=$ofscreater->($output2);
+            my $ofhs=$ofscreater->($outputse);
             
             my $fqr1=FastqReader->new($input1);
             my $fqr2=FastqReader->new($input2);
@@ -634,13 +660,20 @@ use Pileup;
     
 {
     package FastqReader;
+    use IO::Uncompress::Gunzip;
     
     sub new
     {
         my $class=shift;
         my $file=shift;
-        open my $ofh,"<$file" or die "Could not open file handle";
-        
+        my $ofh = undef;
+        if ($file=~/\.gz$/i) {
+             $ofh = new IO::Uncompress::Gunzip $file or die "Could not open file gzipped file $file  $!";
+	}
+	else {
+             open $ofh, "<", $file  or die "Could not open file handle, $!";
+	}
+    
         return bless {
             file=>$file,
             fh=>$ofh,
@@ -1027,6 +1060,10 @@ toggle switch: switch of trimming of quality
 
 togle switch; Disable 5'-trimming (quality and 'N'); May be useful for the identification of duplicates when using trimming of reads.
 Duplicates are usually identified by the 5' mapping position which should thus not be modified by trimming. default=off
+
+=item B<--disable-zipped-output>
+
+Dissable zipped output
 
 =item B<--quit>
 
