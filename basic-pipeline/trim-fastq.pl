@@ -236,7 +236,7 @@ use Pileup;
             
             my $ofh1= $ofscreater->($output1);
             my $ofh2=$ofscreater->($output2);
-            my $ofhs=$ofscreater->($outputse);
+            my $ofhse=$ofscreater->($outputse);
             
             my $fqr1=FastqReader->new($input1);
             my $fqr2=FastqReader->new($input2);
