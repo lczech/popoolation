@@ -127,5 +127,43 @@ sub get_alternative_bases
 }
 
 
+ #       "codon-table=s"  => \$codontablefile,
+ #       "output=s"       => \$outputFile,
+ #       "transversion-penalty=i"  => \$transversion_penalty,
+ #       "help"           => \$help,
+ #       "test"           => \$test
+
+=head1 NAME
+
+create-syn-nonsynmatrixpl - Creates a synonymous non-synonymous length table
+
+=head1 SYNOPSIS
+
+ perl create-syn-nonysynmatrix.pl --codon-table codon-table.txt --output snl-p5.txt --transversion-penalty 6 
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<--codon-table>
+
+A codon table. Mandatory parameter
+
+=item B<--transversion-penalty>
+
+How many times are transversions less frequent as transitions. Mandatory parameter
+
+=item B<--output>
+
+The output file. A synonymous and non-synonymous length table. Mandatory parameter
+
+=item B<--help>
+
+Display the help
+
+=back
+
+=cut
+
 
 
