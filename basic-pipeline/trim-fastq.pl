@@ -90,12 +90,12 @@ use Pileup;
     {
         print "Found an existing file for the second read; Switching to paired-read mode\n";
         
-        MainProc::processPE($input1,$input2,$output1,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
+        MainProc::processPE($input1,$input2,$output1,$output2,$outputse,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
     }
     else
     {
         print  "Did not find an existing file for the second read; Switching to single-read mode\n";
-        MainProc::processSE($input1,$output1,$output2,$outputse,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
+        MainProc::processSE($input1,$output1,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
         
     }
     exit;
@@ -244,7 +244,7 @@ use Pileup;
             pod2usage(-msg=>"An output file for the single ends has to be provided", -verbose=>1) unless $output2;
             
             my $ofh1= $ofscreater->($output1);
-            my $ofh2=$ofscreater->($output2);
+            my $ofh2= $ofscreater->($output2);
             my $ofhse=$ofscreater->($outputse);
             
             my $fqr1=FastqReader->new($input1);
