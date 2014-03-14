@@ -22,7 +22,9 @@ use Pileup;
     my $trimQuality=1;
     my $input1="";
     my $input2="";
-    my $output="";
+    my $output1="";
+    my $output2="";
+    my $outputse="";
     my $verbose=1;
     my $no5ptrim=0;
     my $nozip=0;
@@ -30,7 +32,9 @@ use Pileup;
     GetOptions(
         "input1=s"              =>\$input1,
         "input2=s"              =>\$input2,
-        "output=s"              =>\$output,
+        "output1=s"             =>\$output1,
+        "output2=s"             =>\$output2,
+        "outputse=s"            =>\$outputse,
         "quality-threshold=i"   =>\$qualThreshold,
         "min-length=i"          =>\$minLength,
         "fastq-type=s"          =>\$fastqtype,
@@ -49,13 +53,15 @@ use Pileup;
     pod2usage(-msg=>"Quality must be larger than 0",-verbose=>1) if $qualThreshold<0;
     pod2usage(-msg=>"Length must be larger than 0",-verbose=>1) if $minLength<1 ;  # min length has to be 1 or larger
     pod2usage(-msg=>"At least one input file has to be provided", -verbose=>1) unless -e $input1;
-    pod2usage(-msg=>"An output file has to be provided", -verbose=>1) unless $output;
+    pod2usage(-msg=>"An output file has to be provided", -verbose=>1) unless $output1;
     
-    my $paramfile=$output.".params";
+    my $paramfile=$output1.".params";
     open my $pfh, ">",$paramfile or die "Could not open $paramfile\n";
     print $pfh "Using input1\t$input1\n";
     print $pfh "Using input2\t$input2\n";
-    print $pfh "Using output\t$output\n";
+    print $pfh "Using output1\t$output1\n";
+    print $pfh "Using output2\t$output2\n";
+    print $pfh "Using outputse\t$outputse\n";
     print $pfh "Using quality-threshold\t$qualThreshold\n";
     print $pfh "Using min-length\t$minLength\n";
     print $pfh "Using fastq-type\t$fastqtype\n";
@@ -84,12 +90,12 @@ use Pileup;
     {
         print "Found an existing file for the second read; Switching to paired-read mode\n";
         
-        MainProc::processPE($input1,$input2,$output,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
+        MainProc::processPE($input1,$input2,$output1,$encoder,$trimmingalgorithm,$trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
     }
     else
     {
         print  "Did not find an existing file for the second read; Switching to single-read mode\n";
-        MainProc::processSE($input1,$output,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
+        MainProc::processSE($input1,$output1,$output2,$outputse,$encoder,$trimmingalgorithm, $trimQuality,$qualThreshold,$processStep,$minLength,$discardRemainingNs,$no5ptrim,$verbose,$ofscreater);
         
     }
     exit;
@@ -218,7 +224,9 @@ use Pileup;
         {
             my $input1=shift;
             my $input2=shift;
-            my $outputPrefix=shift;
+            my $output1=shift;
+            my $output2=shift;
+            my $outputse=shift;
             my $encoder=shift;
             my $trimmingalgorithm=shift;
             my $trimQuality=shift;
@@ -230,9 +238,10 @@ use Pileup;
             my $verbose=shift;
             my $ofscreater=shift;
             
-            my $output1     =$outputPrefix."_1";
-            my $output2     =$outputPrefix."_2";
-            my $outputse    =$outputPrefix."_SE";
+
+            
+            pod2usage(-msg=>"An output file for the second read has to be provided", -verbose=>1) unless $output2;
+            pod2usage(-msg=>"An output file for the single ends has to be provided", -verbose=>1) unless $output2;
             
             my $ofh1= $ofscreater->($output1);
             my $ofh2=$ofscreater->($output2);
@@ -1020,9 +1029,17 @@ The input file, or the input file of the first read, in fastq format. Mandatory 
 
 The input file of the second read, in fastq format. In case this file is provided the software will switch to paired read mode instead of single read mode
 
-=item B<--output>
+=item B<--output1>
 
-The output file. Will be in fastq. Mandatory parameter
+The output file of the first read. Will be in fastq. Mandatory parameter
+
+=item B<--output2>
+
+The output file of the second read;. Will be in fastq. Mandatory parameter if paired end mode is used
+
+=item B<--outputse>
+
+The output file of the single ends. Will be in fastq. Mandatory parameter if paired end mode is used
 
 =item B<--quality-threshold>
 
