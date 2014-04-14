@@ -86,9 +86,9 @@ sub _get_subnucsqualparser
         #first get rid of empty entries
         return {A=>0,T=>0,C=>0,G=>0, N=>0, del=>0,eucov=>0,totcov=>0} if $cov==0;
     
-        
+        # ACGTNKMRYSWBVHDXacgtnkmryswbvhdx
         # get rid of the crap present in the sequence line
-        $nucs=~s/[-+](\d+)(??{"[ACGTNacgtn]{$1}"})//g; # I offer a beer for anyone who understand this line, I am a genius!!!!
+        $nucs=~s/[-+](\d+)(??{"[ACGTNKMRYSWBVHDXacgtnkmryswbvhdx]{$1}"})//g; # I offer a beer for anyone who understand this line, I am a genius!!!!
         $nucs=~s/\^.//g;
         $nucs=~s/\$//g;
         $nucs=~s/[.]/uc($rc)/eg;
