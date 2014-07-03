@@ -410,14 +410,17 @@ use lib "$RealBin/../Modules";
     use strict;
     use warnings;
     
-    my $qualhash={
-                  illumina=>sub {ord(shift) - 64;},
-                  sanger=>sub {ord(shift) - 33;},
-                 };
+
     
     sub get_quality_encoder
     {
+
         my $q=shift;
+        my $qualhash={
+                  illumina=>sub {ord(shift) - 64;},
+                  sanger=>sub {ord(shift) - 33;},
+                 };
+
         $q=lc($q);
         die "Encoder $q not supported" unless exists($qualhash->{$q});
         return $qualhash->{$q};
@@ -753,7 +756,7 @@ use lib "$RealBin/../Modules";
     use warnings;
     use FindBin qw($RealBin);
     use lib "$RealBin/../Modules";
-    use Pileup;
+    #use Pileup;
     use Test;
 
     
@@ -828,7 +831,7 @@ use lib "$RealBin/../Modules";
      
     sub testTrimQualityMott
      {
-        my $t=get_quality_encoder("illumina");
+        my $t=Utility::get_quality_encoder("illumina");
         
         my($t1,$t2,$c);
         #U=21
@@ -897,7 +900,7 @@ use lib "$RealBin/../Modules";
      
      sub testTrimQualityNo5pTrim
      {
-        my $t=get_quality_encoder("illumina");
+        my $t=Utility::get_quality_encoder("illumina");
         
         my($t1,$t2,$c);
         #U=21
@@ -947,7 +950,7 @@ use lib "$RealBin/../Modules";
      {
         
 
-        my $t=get_quality_encoder("illumina");
+        my $t=Utility::get_quality_encoder("illumina");
         
         my($t1,$t2,$c);
         
