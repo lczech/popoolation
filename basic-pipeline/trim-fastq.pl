@@ -5,7 +5,7 @@ use Pod::Usage;
 use Getopt::Long;
 use FindBin qw($RealBin);
 use lib "$RealBin/../Modules";
-use Pileup;
+#use Pileup;
 
 
     
@@ -74,7 +74,7 @@ use Pileup;
     close $pfh;
     
     my $ofscreater=MainProc::getofhcreater($nozip);
-    my $encoder=get_quality_encoder($fastqtype);
+    my $encoder=Utility::get_quality_encoder($fastqtype);
     my $trimmingalgorithm;
     if($no5ptrim)
     {
@@ -409,6 +409,19 @@ use Pileup;
     package Utility;
     use strict;
     use warnings;
+    
+    my $qualhash={
+                  illumina=>sub {ord(shift) - 64;},
+                  sanger=>sub {ord(shift) - 33;},
+                 };
+    
+    sub get_quality_encoder
+    {
+        my $q=shift;
+        $q=lc($q);
+        die "Encoder $q not supported" unless exists($qualhash->{$q});
+        return $qualhash->{$q};
+    }
         
         sub printFastq
         {
