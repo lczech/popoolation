@@ -53,7 +53,7 @@ print $pfh "Using test\t$test\n";
 print $pfh "Using help\t$help\n";
 close $pfh;
 
-my $pp=get_pileup_parser($encoding,1,$targetcoverage,$maxcoverage,$minqual);
+my $pp=get_pileup_parser($encoding,1,$targetcoverage,$maxcoverage,$minqual,1);
 my $qualc=Utility::get_quality_char($encoding,$minqual);
 my $subs=Utility::get_subsampler($method,$targetcoverage);
 
