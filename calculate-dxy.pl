@@ -701,6 +701,7 @@ An output of this program looks like in the given example:
  col 3: D12 (Distance between species1 and species2) within a given window
  col 4: D13 (Distance between species1 and species3) within a given window
  col 5: D23 (Distance between species2 and species3) within a given window
+ col 6: covered fraction; number of used sites divided by the window size
  Note: species 1 refers to reference species; species 3 refers to outgroup species in phylogenetic tree; Example: species 1 is D. melanogaster, species2 is D. simulanes and species 3 is D. yakuba
 
 =head1 AUTHORS
