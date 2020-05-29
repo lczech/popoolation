@@ -1,6 +1,6 @@
 # PoPoolation
 
-PoPoolation is a pipeline for analysing pooled next generation sequencing data. Currently PoPoolation allows to calculate Tajima’s Pi, Watterson’s Theta and Tajima’s D with a sliding window approach for chromosomes or for set of genes. One of the main challenges in population genomics is to identify regions of intererest on a genome wide scale. We believe that PoPoolation will greatly aid this task by allowing a fast and user friendly analysis of NGS data from DNA pools.
+PoPoolation ([Kofler *et al.*, 2011](https://doi.org/10.1371/journal.pone.0015925)) is a pipeline for analysing pooled next generation sequencing data. Currently PoPoolation allows to calculate Tajima’s Pi, Watterson’s Theta and Tajima’s D with a sliding window approach for chromosomes or for set of genes. One of the main challenges in population genomics is to identify regions of intererest on a genome wide scale. We believe that PoPoolation will greatly aid this task by allowing a fast and user friendly analysis of NGS data from DNA pools.
 
 ![Project Samples](https://github.com/lczech/popoolation/blob/master/popoolation.png)
 
